@@ -28,7 +28,7 @@
   const map = new maplibregl.Map({
     container: 'map',
     style: 'https://demotiles.maplibre.org/style.json',
-    center: [15.0, 50.0], // Center squarely on Central Europe
+    center: [15.0, 50.0],
     zoom: 3.8
   });
 
@@ -57,7 +57,6 @@
     const slider = document.getElementById('year-slider');
     const yearDisplay = document.getElementById('year-display');
 
-    // Update filter on slider scroll
     slider.addEventListener('input', (e) => {
       const selectedYear = parseInt(e.target.value, 10);
       yearDisplay.textContent = selectedYear;
@@ -67,18 +66,6 @@
         ['<=', ['get', 'valid_from'], selectedYear],
         ['>=', ['get', 'valid_to'], selectedYear]
       ]);
-    });
-
-    // Pop-up state name on click
-    map.on('click', 'borders-layer', (e) => {
-      const name = e.features[0].properties.name;
-      const start = e.features[0].properties.valid_from;
-      const end = e.features[0].properties.valid_to;
-      
-      new maplibregl.Popup()
-        .setLngLat(e.lngLat)
-        .setHTML(`<strong>${name}</strong><br>Active: ${start} - ${end}`)
-        .addTo(map);
     });
   });
 </script>
