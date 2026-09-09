@@ -33,19 +33,19 @@
     style: {
       'version': 8,
       'sources': {
-        // Pre-WWI Historical Map Layer (1914 Era)
+        // Pre-WWI Layer (Historical Map Style)
         'map-1914': {
           'type': 'raster',
           'tiles': [
-            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png' // Open base map placeholder
+            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'
           ],
           'tileSize': 256
         },
-        // Post-WWI Historical Map Layer (1919 Era)
+        // Post-WWI Layer (Satellite/Physical Terrain Style)
         'map-1919': {
           'type': 'raster',
           'tiles': [
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' // Terrain map placeholder
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
           ],
           'tileSize': 256
         }
@@ -61,7 +61,7 @@
           'id': 'layer-1919',
           'type': 'raster',
           'source': 'map-1919',
-          'paint': { 'raster-opacity': 0 } // Starts hidden
+          'paint': { 'raster-opacity': 0 }
         }
       ]
     },
@@ -77,17 +77,16 @@
     const selectedYear = parseInt(e.target.value, 10);
     yearDisplay.textContent = selectedYear;
 
-    // Check if slider is before or after WWI (1914)
     if (selectedYear <= 1914) {
-      // Show Pre-WWI Map
+      // Show Pre-WWI Europe map
       map.setPaintProperty('layer-1914', 'raster-opacity', 1);
       map.setPaintProperty('layer-1919', 'raster-opacity', 0);
       eraTitle.textContent = "Pre-WWI Europe (German, Austro-Hungarian & Russian Empires)";
     } else {
-      // Show Post-WWI Map
+      // Show Post-WWI Europe map
       map.setPaintProperty('layer-1914', 'raster-opacity', 0);
       map.setPaintProperty('layer-1919', 'raster-opacity', 1);
-      eraTitle.textContent = "Post-WWI Europe (Borders Redrawn: Poland, Czechoslovakia, Yugoslavia)";
+      eraTitle.textContent = "Post-WWI Europe (Borders Redrawn)";
     }
   });
 </script>
