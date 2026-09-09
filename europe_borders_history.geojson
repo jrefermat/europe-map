@@ -4,9 +4,9 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Holy Roman Empire (Medieval Era)",
+        "name": "Holy Roman Empire",
         "valid_from": 962,
-        "valid_to": 1500,
+        "valid_to": 1499,
         "fill_color": "#f1c40f"
       },
       "geometry": {
@@ -17,7 +17,7 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Kingdom of France (1600 Era)",
+        "name": "Kingdom of France",
         "valid_from": 1500,
         "valid_to": 1789,
         "fill_color": "#3498db"
@@ -56,7 +56,7 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "German Empire (WWI Era)",
+        "name": "German Empire",
         "valid_from": 1871,
         "valid_to": 1918,
         "fill_color": "#34495e"
@@ -64,19 +64,6 @@
       "geometry": {
         "type": "Polygon",
         "coordinates": [[[6.0, 53.5], [22.0, 54.5], [18.5, 50.0], [7.5, 47.5], [6.0, 53.5]]]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Russian Empire (1914)",
-        "valid_from": 1721,
-        "valid_to": 1917,
-        "fill_color": "#9b59b6"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [[[22.0, 54.5], [40.0, 65.0], [40.0, 45.0], [28.0, 45.0], [22.0, 54.5]]]
       }
     }
   ]
