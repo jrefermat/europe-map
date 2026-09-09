@@ -10,7 +10,7 @@
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
     #slider-container {
       position: absolute; bottom: 30px; left: 10%; width: 80%;
-      background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 8px;
+      background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 8px;
       font-family: sans-serif; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
     #year-slider { width: 100%; cursor: pointer; }
@@ -21,15 +21,15 @@
 <div id="map"></div>
 <div id="slider-container">
   <h2>Year: <span id="year-display">1600</span></h2>
-  <input id="year-slider" type="range" min="1000" max="2000" step="1" value="1600">
+  <input id="year-slider" type="range" min="1000" max="1918" step="1" value="1600">
 </div>
 
 <script>
   const map = new maplibregl.Map({
     container: 'map',
     style: 'https://demotiles.maplibre.org/style.json',
-    center: [15.2551, 54.5260],
-    zoom: 4
+    center: [15.0, 50.0], // Center squarely on Central Europe
+    zoom: 3.8
   });
 
   map.on('load', () => {
@@ -44,7 +44,7 @@
       'source': 'historical-borders',
       'paint': {
         'fill-color': ['get', 'fill_color'],
-        'fill-opacity': 0.6,
+        'fill-opacity': 0.65,
         'fill-outline-color': '#000000'
       },
       'filter': [
@@ -57,6 +57,7 @@
     const slider = document.getElementById('year-slider');
     const yearDisplay = document.getElementById('year-display');
 
+    // Update filter on slider scroll
     slider.addEventListener('input', (e) => {
       const selectedYear = parseInt(e.target.value, 10);
       yearDisplay.textContent = selectedYear;
@@ -66,6 +67,18 @@
         ['<=', ['get', 'valid_from'], selectedYear],
         ['>=', ['get', 'valid_to'], selectedYear]
       ]);
+    });
+
+    // Pop-up state name on click
+    map.on('click', 'borders-layer', (e) => {
+      const name = e.features[0].properties.name;
+      const start = e.features[0].properties.valid_from;
+      const end = e.features[0].properties.valid_to;
+      
+      new maplibregl.Popup()
+        .setLngLat(e.lngLat)
+        .setHTML(`<strong>${name}</strong><br>Active: ${start} - ${end}`)
+        .addTo(map);
     });
   });
 </script>

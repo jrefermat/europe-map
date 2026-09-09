@@ -4,14 +4,14 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Polish-Lithuanian Commonwealth",
-        "valid_from": 1569,
-        "valid_to": 1795,
-        "fill_color": "#e74c3c"
+        "name": "Holy Roman Empire (Medieval Era)",
+        "valid_from": 962,
+        "valid_to": 1500,
+        "fill_color": "#f1c40f"
       },
       "geometry": {
         "type": "Polygon",
-        "coordinates": [[[18, 54], [28, 54], [28, 48], [18, 48], [18, 54]]]
+        "coordinates": [[[6.0, 53.5], [15.0, 54.0], [16.5, 46.5], [10.0, 43.5], [6.0, 46.0], [6.0, 53.5]]]
       }
     },
     {
@@ -24,7 +24,20 @@
       },
       "geometry": {
         "type": "Polygon",
-        "coordinates": [[[-4, 48], [7, 48], [7, 43], [-4, 43], [-4, 48]]]
+        "coordinates": [[[-4.5, 48.5], [2.5, 51.0], [7.5, 48.0], [6.0, 43.5], [-1.5, 43.5], [-4.5, 48.5]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Polish-Lithuanian Commonwealth",
+        "valid_from": 1569,
+        "valid_to": 1795,
+        "fill_color": "#e74c3c"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[14.5, 53.5], [28.0, 59.0], [32.0, 52.0], [25.0, 46.5], [18.0, 49.5], [14.5, 53.5]]]
       }
     },
     {
@@ -37,7 +50,33 @@
       },
       "geometry": {
         "type": "Polygon",
-        "coordinates": [[[-5, 52], [14, 52], [14, 42], [-5, 42], [-5, 52]]]
+        "coordinates": [[[-4.5, 48.5], [14.0, 54.0], [18.0, 50.0], [12.0, 42.0], [-1.5, 43.5], [-4.5, 48.5]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "German Empire (WWI Era)",
+        "valid_from": 1871,
+        "valid_to": 1918,
+        "fill_color": "#34495e"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[6.0, 53.5], [22.0, 54.5], [18.5, 50.0], [7.5, 47.5], [6.0, 53.5]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Russian Empire (1914)",
+        "valid_from": 1721,
+        "valid_to": 1917,
+        "fill_color": "#9b59b6"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[22.0, 54.5], [40.0, 65.0], [40.0, 45.0], [28.0, 45.0], [22.0, 54.5]]]
       }
     }
   ]
