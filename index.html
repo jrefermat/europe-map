@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Yearly Historical Globe</title>
+  <title>Europe Pre/Post WWI Map</title>
   <script src="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.js"></script>
   <link href="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.css" rel="stylesheet" />
   <style>
@@ -12,61 +12,83 @@
       position: absolute; bottom: 30px; left: 10%; width: 80%;
       background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 8px;
       font-family: sans-serif; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 10;
     }
     #year-slider { width: 100%; cursor: pointer; }
+    #era-title { margin: 5px 0 0 0; font-weight: normal; color: #555; }
   </style>
 </head>
 <body>
 
 <div id="map"></div>
 <div id="slider-container">
-  <h2>Year: <span id="year-display">1600</span></h2>
-  <input id="year-slider" type="range" min="1000" max="1918" step="1" value="1600">
+  <h2>Year: <span id="year-display">1910</span></h2>
+  <h3 id="era-title">Pre-WWI Europe (German, Austro-Hungarian & Russian Empires)</h3>
+  <input id="year-slider" type="range" min="1910" max="1920" step="1" value="1910">
 </div>
 
 <script>
   const map = new maplibregl.Map({
     container: 'map',
-    style: 'https://demotiles.maplibre.org/style.json',
+    style: {
+      'version': 8,
+      'sources': {
+        // Pre-WWI Historical Map Layer (1914 Era)
+        'map-1914': {
+          'type': 'raster',
+          'tiles': [
+            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png' // Open base map placeholder
+          ],
+          'tileSize': 256
+        },
+        // Post-WWI Historical Map Layer (1919 Era)
+        'map-1919': {
+          'type': 'raster',
+          'tiles': [
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' // Terrain map placeholder
+          ],
+          'tileSize': 256
+        }
+      },
+      'layers': [
+        {
+          'id': 'layer-1914',
+          'type': 'raster',
+          'source': 'map-1914',
+          'paint': { 'raster-opacity': 1 }
+        },
+        {
+          'id': 'layer-1919',
+          'type': 'raster',
+          'source': 'map-1919',
+          'paint': { 'raster-opacity': 0 } // Starts hidden
+        }
+      ]
+    },
     center: [15.0, 50.0],
-    zoom: 3.8
+    zoom: 4
   });
 
-  map.on('load', () => {
-    map.addSource('historical-borders', {
-      'type': 'geojson',
-      'data': './europe_borders_history.geojson'
-    });
+  const slider = document.getElementById('year-slider');
+  const yearDisplay = document.getElementById('year-display');
+  const eraTitle = document.getElementById('era-title');
 
-    map.addLayer({
-      'id': 'borders-layer',
-      'type': 'fill',
-      'source': 'historical-borders',
-      'paint': {
-        'fill-color': ['get', 'fill_color'],
-        'fill-opacity': 0.65,
-        'fill-outline-color': '#000000'
-      },
-      'filter': [
-        'all',
-        ['<=', ['get', 'valid_from'], 1600],
-        ['>=', ['get', 'valid_to'], 1600]
-      ]
-    });
+  slider.addEventListener('input', (e) => {
+    const selectedYear = parseInt(e.target.value, 10);
+    yearDisplay.textContent = selectedYear;
 
-    const slider = document.getElementById('year-slider');
-    const yearDisplay = document.getElementById('year-display');
-
-    slider.addEventListener('input', (e) => {
-      const selectedYear = parseInt(e.target.value, 10);
-      yearDisplay.textContent = selectedYear;
-
-      map.setFilter('borders-layer', [
-        'all',
-        ['<=', ['get', 'valid_from'], selectedYear],
-        ['>=', ['get', 'valid_to'], selectedYear]
-      ]);
-    });
+    // Check if slider is before or after WWI (1914)
+    if (selectedYear <= 1914) {
+      // Show Pre-WWI Map
+      map.setPaintProperty('layer-1914', 'raster-opacity', 1);
+      map.setPaintProperty('layer-1919', 'raster-opacity', 0);
+      eraTitle.textContent = "Pre-WWI Europe (German, Austro-Hungarian & Russian Empires)";
+    } else {
+      // Show Post-WWI Map
+      map.setPaintProperty('layer-1914', 'raster-opacity', 0);
+      map.setPaintProperty('layer-1919', 'raster-opacity', 1);
+      eraTitle.textContent = "Post-WWI Europe (Borders Redrawn: Poland, Czechoslovakia, Yugoslavia)";
+    }
   });
 </script>
 </body>
