@@ -1,0 +1,44 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Polish-Lithuanian Commonwealth",
+        "valid_from": 1569,
+        "valid_to": 1795,
+        "fill_color": "#e74c3c"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[18, 54], [28, 54], [28, 48], [18, 48], [18, 54]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kingdom of France (1600 Era)",
+        "valid_from": 1500,
+        "valid_to": 1789,
+        "fill_color": "#3498db"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-4, 48], [7, 48], [7, 43], [-4, 43], [-4, 48]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Napoleonic French Empire",
+        "valid_from": 1804,
+        "valid_to": 1815,
+        "fill_color": "#2ecc71"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-5, 52], [14, 52], [14, 42], [-5, 42], [-5, 52]]]
+      }
+    }
+  ]
+}

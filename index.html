@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Yearly Historical Globe</title>
+  <script src="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    #slider-container {
+      position: absolute; bottom: 30px; left: 10%; width: 80%;
+      background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 8px;
+      font-family: sans-serif; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    #year-slider { width: 100%; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="slider-container">
+  <h2>Year: <span id="year-display">1600</span></h2>
+  <input id="year-slider" type="range" min="1000" max="2000" step="1" value="1600">
+</div>
+
+<script>
+  const map = new maplibregl.Map({
+    container: 'map',
+    style: 'https://demotiles.maplibre.org/style.json',
+    center: [15.2551, 54.5260],
+    zoom: 4
+  });
+
+  map.on('load', () => {
+    map.addSource('historical-borders', {
+      'type': 'geojson',
+      'data': './europe_borders_history.geojson'
+    });
+
+    map.addLayer({
+      'id': 'borders-layer',
+      'type': 'fill',
+      'source': 'historical-borders',
+      'paint': {
+        'fill-color': ['get', 'fill_color'],
+        'fill-opacity': 0.6,
+        'fill-outline-color': '#000000'
+      },
+      'filter': [
+        'all',
+        ['<=', ['get', 'valid_from'], 1600],
+        ['>=', ['get', 'valid_to'], 1600]
+      ]
+    });
+
+    const slider = document.getElementById('year-slider');
+    const yearDisplay = document.getElementById('year-display');
+
+    slider.addEventListener('input', (e) => {
+      const selectedYear = parseInt(e.target.value, 10);
+      yearDisplay.textContent = selectedYear;
+
+      map.setFilter('borders-layer', [
+        'all',
+        ['<=', ['get', 'valid_from'], selectedYear],
+        ['>=', ['get', 'valid_to'], selectedYear]
+      ]);
+    });
+  });
+</script>
+</body>
+</html>
