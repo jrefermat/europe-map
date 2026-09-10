@@ -1,94 +1,567 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Europe Pre/Post WWI Map</title>
-  <script src="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.js"></script>
-  <link href="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.css" rel="stylesheet" />
-  <style>
-    body { margin: 0; padding: 0; }
-    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-    #slider-container {
-      position: absolute; bottom: 30px; left: 10%; width: 80%;
-      background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 8px;
-      font-family: sans-serif; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      z-index: 10;
-    }
-    #year-slider { width: 100%; cursor: pointer; }
-    #era-title { margin: 5px 0 0 0; font-weight: normal; color: #555; }
-  </style>
-</head>
-<body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>European WWII Campaign Timeline, 1939–1941</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIINfQY8Z8Ck2pGMBsNZ8Epr/0r32R5D2wM="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <style>
+      body {
+        margin: 0;
+      }
+      #map {
+        height: min(68vh, 680px);
+        min-height: 440px;
+      }
+      .leaflet-container {
+        background: #0f172a;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+      .military-arrow {
+        background: transparent;
+        border: 0;
+        color: #f8fafc;
+        font-size: 22px;
+        font-weight: 900;
+        line-height: 1;
+        text-shadow: 0 1px 3px #020617;
+      }
+      .leaflet-tooltip {
+        border: 1px solid #334155;
+        background: #0f172a;
+        color: #e2e8f0;
+        box-shadow: 0 3px 12px rgb(0 0 0 / 0.35);
+      }
+      .leaflet-tooltip-top:before {
+        border-top-color: #334155;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-slate-950 text-slate-100">
+    <main class="mx-auto flex min-h-screen max-w-7xl flex-col gap-4 p-4 sm:p-6">
+      <header class="text-center">
+        <p
+          class="text-xs font-semibold uppercase tracking-[0.22em] text-amber-400"
+        >
+          Wikimedia Atlas-inspired campaign view
+        </p>
+        <h1 class="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
+          European WWII Movements, 1939–1941
+        </h1>
+        <p
+          id="stage-description"
+          class="mx-auto mt-2 max-w-3xl text-sm text-slate-400"
+        ></p>
+      </header>
 
-<div id="map"></div>
-<div id="slider-container">
-  <h2>Year: <span id="year-display">1910</span></h2>
-  <h3 id="era-title">Pre-WWI Europe (German, Austro-Hungarian & Russian Empires)</h3>
-  <input id="year-slider" type="range" min="1910" max="1920" step="1" value="1910">
-</div>
+      <section
+        class="relative overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl"
+        aria-label="Campaign map"
+      >
+        <div id="map" aria-label="Map of European World War II campaigns"></div>
+        <div
+          class="pointer-events-none absolute bottom-4 left-4 z-[1000] grid gap-1 rounded-lg border border-slate-700 bg-slate-950/90 p-3 text-xs shadow-lg backdrop-blur sm:grid-cols-2"
+        >
+          <span
+            ><i
+              class="mr-1.5 inline-block h-3 w-3 rounded-full bg-red-500 align-[-2px]"
+            ></i
+            >Axis control</span
+          >
+          <span
+            ><i
+              class="mr-1.5 inline-block h-3 w-3 rounded-full bg-blue-500 align-[-2px]"
+            ></i
+            >Allied / unoccupied USSR</span
+          >
+          <span
+            ><i
+              class="mr-1.5 inline-block h-3 w-3 rounded-full bg-amber-500 align-[-2px]"
+            ></i
+            >Vichy France</span
+          >
+          <span
+            ><i
+              class="mr-1.5 inline-block h-3 w-3 rounded-full bg-slate-500 align-[-2px]"
+            ></i
+            >Neutral / other</span
+          >
+        </div>
+      </section>
 
-<script>
-  const map = new maplibregl.Map({
-    container: 'map',
-    style: {
-      'version': 8,
-      'sources': {
-        // Pre-WWI Layer (Historical Map Style)
-        'map-1914': {
-          'type': 'raster',
-          'tiles': [
-            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'
-          ],
-          'tileSize': 256
-        },
-        // Post-WWI Layer (Satellite/Physical Terrain Style)
-        'map-1919': {
-          'type': 'raster',
-          'tiles': [
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-          ],
-          'tileSize': 256
-        }
-      },
-      'layers': [
+      <section
+        class="rounded-2xl border border-slate-700 bg-slate-900 p-4 shadow-lg sm:p-5"
+      >
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <label for="campaign-slider" class="font-semibold text-slate-200"
+            >Campaign stage</label
+          >
+          <output
+            id="stage-date"
+            class="rounded-full border border-blue-500/30 bg-blue-500/15 px-3 py-1 font-mono text-xs font-bold text-blue-300"
+          ></output>
+        </div>
+        <input
+          id="campaign-slider"
+          class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-700 accent-blue-500"
+          type="range"
+          min="0"
+          max="6"
+          value="0"
+          step="1"
+        />
+        <div
+          id="stage-title"
+          class="mt-3 text-lg font-semibold text-slate-100"
+        ></div>
+        <p class="mt-1 text-xs text-slate-500">
+          Select a stage to view key territorial control, partition lines, and
+          major offensive directions.
+        </p>
+      </section>
+    </main>
+
+    <script>
+      const COLORS = {
+        axis: "#ef4444",
+        allied: "#3b82f6",
+        neutral: "#475569",
+        vichy: "#f59e0b",
+        line: "#f8fafc",
+      };
+      const COUNTRY_URL =
+        "https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@v5.0.0/geojson/ne_110m_admin_0_countries.geojson";
+      const map = L.map("map", {
+        zoomControl: true,
+        scrollWheelZoom: true,
+      }).setView([52, 19], 4);
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
         {
-          'id': 'layer-1914',
-          'type': 'raster',
-          'source': 'map-1914',
-          'paint': { 'raster-opacity': 1 }
+          attribution: "Tiles &copy; Esri &mdash; Canvas Dark Gray",
+          maxZoom: 16,
+        },
+      ).addTo(map);
+
+      const stages = [
+        {
+          date: "1939-08-31",
+          title: "Aug 31, 1939 — Pre-War Europe",
+          description:
+            "Poland remains intact on the eve of the German invasion.",
+          control: {
+            DEU: "axis",
+            ITA: "axis",
+            GBR: "allied",
+            FRA: "allied",
+            POL: "allied",
+          },
+          overlays: [],
         },
         {
-          'id': 'layer-1919',
-          'type': 'raster',
-          'source': 'map-1919',
-          'paint': { 'raster-opacity': 0 }
+          date: "1939-09-17",
+          title: "Sept 17, 1939 — Invasion and Partition of Poland",
+          description:
+            "Germany attacks from the west; the Soviet Union enters from the east. The dashed line marks the German–Soviet demarcation frontier.",
+          control: {
+            DEU: "axis",
+            ITA: "axis",
+            GBR: "allied",
+            FRA: "allied",
+            POL: "axis",
+          },
+          overlays: ["polandLine"],
+        },
+        {
+          date: "1940-04-09",
+          title: "April 9, 1940 — Operation Weserübung",
+          description:
+            "German forces invade Denmark and Norway to secure the northern approaches.",
+          control: {
+            DEU: "axis",
+            ITA: "axis",
+            DNK: "axis",
+            NOR: "axis",
+            GBR: "allied",
+            FRA: "allied",
+            POL: "axis",
+          },
+          overlays: ["weserubung"],
+        },
+        {
+          date: "1940-05-10",
+          title: "May 10, 1940 — Fall Gelb",
+          description:
+            "German armies drive through the Low Countries and northern France in a rapid western offensive.",
+          control: {
+            DEU: "axis",
+            ITA: "axis",
+            DNK: "axis",
+            NOR: "axis",
+            NLD: "axis",
+            BEL: "axis",
+            LUX: "axis",
+            FRA: "axis",
+            GBR: "allied",
+            POL: "axis",
+          },
+          overlays: ["fallGelb"],
+        },
+        {
+          date: "1940-06-22",
+          title: "June 22, 1940 — Armistice of Compiègne",
+          description:
+            "France is divided between a German-occupied zone and the semi-aligned Vichy French state.",
+          control: {
+            DEU: "axis",
+            ITA: "axis",
+            DNK: "axis",
+            NOR: "axis",
+            NLD: "axis",
+            BEL: "axis",
+            LUX: "axis",
+            FRA: "neutral",
+            GBR: "allied",
+            POL: "axis",
+          },
+          overlays: ["franceDivision"],
+        },
+        {
+          date: "1941-04-06",
+          title: "April 6, 1941 — Balkans Campaign",
+          description:
+            "Axis forces invade Yugoslavia and Greece, widening the war across southeastern Europe.",
+          control: {
+            DEU: "axis",
+            ITA: "axis",
+            DNK: "axis",
+            NOR: "axis",
+            NLD: "axis",
+            BEL: "axis",
+            LUX: "axis",
+            FRA: "neutral",
+            YUG: "axis",
+            GRC: "axis",
+            HUN: "axis",
+            ROU: "axis",
+            BGR: "axis",
+            GBR: "allied",
+            POL: "axis",
+          },
+          overlays: ["franceDivision", "balkans"],
+        },
+        {
+          date: "1941-06-22",
+          title: "June 22, 1941 — Operation Barbarossa Launch",
+          description:
+            "Army Groups North, Center, and South begin a three-pronged advance into the Soviet Union.",
+          control: {
+            DEU: "axis",
+            ITA: "axis",
+            DNK: "axis",
+            NOR: "axis",
+            NLD: "axis",
+            BEL: "axis",
+            LUX: "axis",
+            FRA: "neutral",
+            YUG: "axis",
+            GRC: "axis",
+            HUN: "axis",
+            ROU: "axis",
+            BGR: "axis",
+            FIN: "axis",
+            GBR: "allied",
+            POL: "axis",
+            RUS: "allied",
+          },
+          overlays: ["franceDivision", "barbarossa"],
+        },
+      ];
+
+      let countries;
+      let activeLayers = [];
+      const slider = document.getElementById("campaign-slider");
+      const stageTitle = document.getElementById("stage-title");
+      const stageDate = document.getElementById("stage-date");
+      const stageDescription = document.getElementById("stage-description");
+
+      function countryCode(properties) {
+        return (
+          properties.ISO_A3 || properties.ISO_A3_EH || properties.ADM0_A3 || ""
+        );
+      }
+      function countryName(properties) {
+        return properties.NAME || properties.ADMIN || "Region";
+      }
+      function factionFor(feature, stage) {
+        return stage.control[countryCode(feature.properties)] || "neutral";
+      }
+      function addArrow(points, label, color = COLORS.line) {
+        const line = L.polyline(points, {
+          color,
+          weight: 3,
+          opacity: 0.95,
+          dashArray: "8 6",
+        })
+          .addTo(map)
+          .bindTooltip(label, { sticky: true });
+        const last = points.at(-1),
+          beforeLast = points.at(-2);
+        const angle =
+          (Math.atan2(last[1] - beforeLast[1], last[0] - beforeLast[0]) * 180) /
+          Math.PI;
+        const marker = L.marker(last, {
+          interactive: false,
+          icon: L.divIcon({
+            className: "military-arrow",
+            html: `<span style="display:block;transform:rotate(${90 - angle}deg)">➤</span>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+          }),
+        }).addTo(map);
+        activeLayers.push(line, marker);
+      }
+      function addLine(points, label) {
+        activeLayers.push(
+          L.polyline(points, {
+            color: COLORS.line,
+            weight: 2.5,
+            dashArray: "7 6",
+          })
+            .addTo(map)
+            .bindTooltip(label, { sticky: true }),
+        );
+      }
+      function addPolygon(points, label, options) {
+        activeLayers.push(
+          L.polygon(points, options)
+            .addTo(map)
+            .bindTooltip(label, { sticky: true }),
+        );
+      }
+
+      function drawOverlays(stage) {
+        activeLayers.forEach((layer) => map.removeLayer(layer));
+        activeLayers = [];
+        if (stage.overlays.includes("polandLine"))
+          addLine(
+            [
+              [54.4, 23.0],
+              [53.0, 23.7],
+              [51.6, 24.0],
+              [50.2, 23.4],
+            ],
+            "German–Soviet partition line, September 1939",
+          );
+        if (stage.overlays.includes("weserubung")) {
+          addArrow(
+            [
+              [54.7, 10.0],
+              [56.2, 10.3],
+              [57.7, 10.1],
+            ],
+            "Operation Weserübung: Denmark",
+            COLORS.axis,
+          );
+          addArrow(
+            [
+              [57.7, 10.1],
+              [59.9, 10.8],
+              [62.0, 9.8],
+            ],
+            "Operation Weserübung: Norway",
+            COLORS.axis,
+          );
         }
-      ]
-    },
-    center: [15.0, 50.0],
-    zoom: 4
-  });
+        if (stage.overlays.includes("fallGelb")) {
+          addArrow(
+            [
+              [50.7, 6.2],
+              [50.8, 4.7],
+              [50.9, 3.2],
+            ],
+            "Fall Gelb: advance through Belgium",
+            COLORS.axis,
+          );
+          addArrow(
+            [
+              [49.7, 7.0],
+              [49.4, 4.8],
+              [49.2, 2.6],
+            ],
+            "Fall Gelb: advance into northern France",
+            COLORS.axis,
+          );
+        }
+        if (stage.overlays.includes("franceDivision")) {
+          addPolygon(
+            [
+              [51.0, -4.7],
+              [50.0, -1.7],
+              [49.6, 1.6],
+              [49.3, 3.4],
+              [48.8, 5.5],
+              [48.5, 7.8],
+              [45.0, 7.5],
+              [43.0, 3.5],
+              [43.3, -1.5],
+              [46.2, -4.7],
+            ],
+            "German-occupied France",
+            {
+              color: "#991b1b",
+              weight: 1,
+              fillColor: COLORS.axis,
+              fillOpacity: 0.56,
+            },
+          );
+          addPolygon(
+            [
+              [46.2, -4.7],
+              [43.3, -1.5],
+              [43.0, 3.5],
+              [45.0, 7.5],
+              [43.2, 7.6],
+              [42.3, 3.0],
+              [43.0, -1.5],
+            ],
+            "Vichy France — semi-aligned French state",
+            {
+              color: "#92400e",
+              weight: 1.2,
+              fillColor: COLORS.vichy,
+              fillOpacity: 0.72,
+            },
+          );
+          addLine(
+            [
+              [46.2, -4.7],
+              [43.3, -1.5],
+              [43.0, 3.5],
+              [45.0, 7.5],
+            ],
+            "Occupied France–Vichy France demarcation line",
+          );
+        }
+        if (stage.overlays.includes("balkans")) {
+          addArrow(
+            [
+              [47.4, 16.0],
+              [45.4, 19.5],
+              [44.0, 20.7],
+            ],
+            "Axis advance into Yugoslavia",
+            COLORS.axis,
+          );
+          addArrow(
+            [
+              [42.5, 23.4],
+              [41.4, 22.4],
+              [40.5, 22.8],
+            ],
+            "Axis advance into Greece",
+            COLORS.axis,
+          );
+        }
+        if (stage.overlays.includes("barbarossa")) {
+          addArrow(
+            [
+              [54.8, 23.8],
+              [56.0, 28.5],
+              [59.7, 30.5],
+            ],
+            "Army Group North: toward Leningrad",
+            COLORS.axis,
+          );
+          addArrow(
+            [
+              [52.4, 24.0],
+              [54.2, 29.5],
+              [55.7, 37.6],
+            ],
+            "Army Group Center: toward Moscow",
+            COLORS.axis,
+          );
+          addArrow(
+            [
+              [49.6, 23.6],
+              [50.4, 30.0],
+              [48.5, 37.5],
+            ],
+            "Army Group South: toward Kyiv and Ukraine",
+            COLORS.axis,
+          );
+        }
+      }
 
-  const slider = document.getElementById('year-slider');
-  const yearDisplay = document.getElementById('year-display');
-  const eraTitle = document.getElementById('era-title');
+      function renderStage(index) {
+        const stage = stages[index];
+        stageDate.textContent = stage.date;
+        stageTitle.textContent = stage.title;
+        stageDescription.textContent = stage.description;
+        if (countries) {
+          countries.setStyle((feature) => {
+            const faction = factionFor(feature, stage);
+            return {
+              color: "#0f172a",
+              weight: 0.8,
+              fillColor: COLORS[faction],
+              fillOpacity: faction === "neutral" ? 0.32 : 0.78,
+            };
+          });
+          countries.eachLayer((layer) => {
+            const faction = factionFor(layer.feature, stage);
+            layer.setTooltipContent(
+              `<b>${countryName(layer.feature.properties)}</b><br>Control: ${faction === "vichy" ? "Vichy French" : faction.toUpperCase()}`,
+            );
+          });
+        }
+        drawOverlays(stage);
+      }
 
-  slider.addEventListener('input', (e) => {
-    const selectedYear = parseInt(e.target.value, 10);
-    yearDisplay.textContent = selectedYear;
+      fetch(COUNTRY_URL)
+        .then((response) => {
+          if (!response.ok)
+            throw new Error(
+              `Country boundary request failed: ${response.status}`,
+            );
+          return response.json();
+        })
+        .then((data) => {
+          countries = L.geoJSON(data, {
+            style: {
+              color: "#0f172a",
+              weight: 0.8,
+              fillColor: COLORS.neutral,
+              fillOpacity: 0.32,
+            },
+            onEachFeature: (feature, layer) =>
+              layer.bindTooltip(`<b>${countryName(feature.properties)}</b>`, {
+                sticky: true,
+              }),
+          }).addTo(map);
+          renderStage(Number(slider.value));
+        })
+        .catch((error) => {
+          stageDescription.textContent = `Country boundaries could not be loaded (${error.message}). Campaign lines remain available.`;
+          renderStage(Number(slider.value));
+        });
 
-    if (selectedYear <= 1914) {
-      // Show Pre-WWI Europe map
-      map.setPaintProperty('layer-1914', 'raster-opacity', 1);
-      map.setPaintProperty('layer-1919', 'raster-opacity', 0);
-      eraTitle.textContent = "Pre-WWI Europe (German, Austro-Hungarian & Russian Empires)";
-    } else {
-      // Show Post-WWI Europe map
-      map.setPaintProperty('layer-1914', 'raster-opacity', 0);
-      map.setPaintProperty('layer-1919', 'raster-opacity', 1);
-      eraTitle.textContent = "Post-WWI Europe (Borders Redrawn)";
-    }
-  });
-</script>
-</body>
+      slider.addEventListener("input", (event) =>
+        renderStage(Number(event.target.value)),
+      );
+      renderStage(Number(slider.value));
+    </script>
+  </body>
 </html>
